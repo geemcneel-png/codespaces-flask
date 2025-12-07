@@ -1,0 +1,628 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>⚡ ORION - Quote & Invoice System</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
+            color: white;
+            padding: 40px 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        .tagline {
+            font-style: italic;
+            opacity: 0.9;
+            font-size: 1.1rem;
+        }
+
+        .content {
+            padding: 40px 30px;
+        }
+
+        .section {
+            margin-bottom: 40px;
+            padding-bottom: 30px;
+            border-bottom: 2px solid #e5e7eb;
+        }
+
+        .section:last-child {
+            border-bottom: none;
+        }
+
+        .section-title {
+            font-size: 1.5rem;
+            color: #1e3a8a;
+            margin-bottom: 20px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #374151;
+            font-weight: 600;
+            font-size: 0.95rem;
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: all 0.2s;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px rgba(59, 130, 246, 0.3);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #16a34a 0%, #15803d 100%);
+            color: white;
+            width: 100%;
+            padding: 18px;
+            font-size: 1.2rem;
+        }
+
+        .btn-success:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(22, 163, 74, 0.4);
+        }
+
+        .btn-add {
+            background: #3b82f6;
+            color: white;
+            width: 100%;
+            margin-top: 15px;
+        }
+
+        .btn-add:hover {
+            background: #2563eb;
+        }
+
+        .inventory-picker {
+            display: grid;
+            grid-template-columns: 3fr 1fr 1fr 0.5fr;
+            gap: 10px;
+            margin-bottom: 15px;
+            align-items: end;
+        }
+
+        .remove-btn {
+            background: #dc2626;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            padding: 12px;
+            cursor: pointer;
+            font-size: 1.2rem;
+            transition: background 0.2s;
+        }
+
+        .remove-btn:hover {
+            background: #b91c1c;
+        }
+
+        .totals-box {
+            background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
+            border-radius: 12px;
+            padding: 30px;
+            margin-top: 30px;
+        }
+
+        .total-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px 0;
+            font-size: 1.2rem;
+        }
+
+        .total-row.final {
+            border-top: 3px solid #1e3a8a;
+            margin-top: 15px;
+            padding-top: 20px;
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #1e3a8a;
+        }
+
+        .customer-select-group {
+            display: grid;
+            grid-template-columns: 1fr auto;
+            gap: 10px;
+            align-items: end;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: #6b7280;
+        }
+
+        .spinner {
+            border: 4px solid #f3f4f6;
+            border-top: 4px solid #3b82f6;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .success-message {
+            background: #dcfce7;
+            border: 2px solid #22c55e;
+            color: #166534;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+            font-weight: 600;
+            display: none;
+            margin-top: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .inventory-picker {
+                grid-template-columns: 1fr;
+            }
+            
+            .header h1 {
+                font-size: 1.8rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>⚡ ORION</h1>
+            <p class="tagline">AI Amplifies. I Create.</p>
+            <p style="margin-top: 10px; font-size: 1.1rem;">Quote & Invoice System</p>
+        </div>
+
+        <div class="content">
+            <!-- Customer Selection -->
+            <div class="section">
+                <div class="section-title">👤 Customer Information</div>
+                
+                <div class="customer-select-group">
+                    <div class="input-group" style="margin-bottom: 0;">
+                        <label>Select Existing Customer</label>
+                        <select id="customerSelect" onchange="loadCustomer()">
+                            <option value="">-- Select Customer --</option>
+                        </select>
+                    </div>
+                    <button class="btn btn-primary" onclick="showNewCustomerForm()">+ New Customer</button>
+                </div>
+
+                <div id="newCustomerForm" style="display: none; margin-top: 20px; padding: 20px; background: #f9fafb; border-radius: 8px;">
+                    <h3 style="margin-bottom: 15px; color: #1e3a8a;">Add New Customer</h3>
+                    <div class="input-group">
+                        <label>Customer Name *</label>
+                        <input type="text" id="newCustomerName" placeholder="John Smith">
+                    </div>
+                    <div class="input-group">
+                        <label>Phone Number *</label>
+                        <input type="tel" id="newCustomerPhone" placeholder="+27123456789">
+                    </div>
+                    <div class="input-group">
+                        <label>Email</label>
+                        <input type="email" id="newCustomerEmail" placeholder="john@example.com">
+                    </div>
+                    <div class="input-group">
+                        <label>Address *</label>
+                        <textarea id="newCustomerAddress" placeholder="123 Main Street, Durban"></textarea>
+                    </div>
+                    <button class="btn btn-primary" onclick="saveNewCustomer()">Save Customer</button>
+                    <button class="btn" onclick="hideNewCustomerForm()" style="margin-left: 10px; background: #6b7280; color: white;">Cancel</button>
+                </div>
+
+                <div id="selectedCustomerInfo" style="display: none; margin-top: 20px; padding: 20px; background: #eff6ff; border-radius: 8px; border-left: 4px solid #3b82f6;">
+                    <h3 style="color: #1e3a8a; margin-bottom: 10px;">Selected Customer</h3>
+                    <p><strong>Name:</strong> <span id="displayName"></span></p>
+                    <p><strong>Phone:</strong> <span id="displayPhone"></span></p>
+                    <p><strong>Email:</strong> <span id="displayEmail"></span></p>
+                    <p><strong>Address:</strong> <span id="displayAddress"></span></p>
+                </div>
+            </div>
+
+            <!-- Job Description -->
+            <div class="section">
+                <div class="section-title">🔧 Job Description</div>
+                <div class="input-group">
+                    <label>Work Description *</label>
+                    <textarea id="jobDescription" placeholder="Kitchen rewiring, install new DB board..."></textarea>
+                </div>
+                <div class="input-group">
+                    <label>Proposed Installation Date *</label>
+                    <input type="date" id="installDate">
+                </div>
+            </div>
+
+            <!-- Line Items from Inventory -->
+            <div class="section">
+                <div class="section-title">📋 Quote Line Items</div>
+                <div id="lineItemsContainer"></div>
+                <button class="btn btn-add" onclick="addLineItem()">+ Add Item from Inventory</button>
+
+                <!-- Totals -->
+                <div class="totals-box">
+                    <div class="total-row">
+                        <span>Subtotal:</span>
+                        <span id="subtotal">R0.00</span>
+                    </div>
+                    <div class="total-row">
+                        <span>VAT (15%):</span>
+                        <span id="vat">R0.00</span>
+                    </div>
+                    <div class="total-row final">
+                        <span>TOTAL:</span>
+                        <span id="total">R0.00</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Generate Button -->
+            <button class="btn btn-success" onclick="generateQuote()">
+                🚀 Generate Quote & Invoice
+            </button>
+
+            <div class="success-message" id="successMessage">
+                ✅ Quote generated and saved successfully!
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // CONFIGURATION
+        const CONFIG = {
+            SHEET_ID: '1z7uCaCPaxKOhV4T4_5x4jmVNQtv-wk7LEl-jmUDULCQ',
+            GOOGLE_API_KEY: 'AIzaSyB6k0a_4M5OtCrNIjQJSN34TLaw1FWy3FI',
+            APPS_SCRIPT_URL: 'https://script.google.com/macros/s/AKfycbwhY9MgJ1dR88zBiLw_pj1-_WoOdR0MxFa203FtdvkLUGwhJQ5pMqgD-yedMFAxgJ59/exec'
+        };
+
+        let customers = [];
+        let inventory = [];
+        let lineItemCount = 0;
+
+        // Load data on page load
+        window.addEventListener('DOMContentLoaded', async () => {
+            await loadCustomers();
+            await loadInventory();
+            addLineItem();
+            
+            // Set min date to today
+            document.getElementById('installDate').min = new Date().toISOString().split('T')[0];
+        });
+
+        // Load customers from Google Sheets
+        async function loadCustomers() {
+            try {
+                const url = `https://sheets.googleapis.com/v4/spreadsheets/${CONFIG.SHEET_ID}/values/Customers!A2:J?key=${CONFIG.GOOGLE_API_KEY}`;
+                const response = await fetch(url);
+                const data = await response.json();
+                
+                customers = (data.values || []).map(row => ({
+                    id: row[0],
+                    name: row[2],
+                    phone: row[3],
+                    email: row[4],
+                    address: row[5]
+                }));
+
+                const select = document.getElementById('customerSelect');
+                customers.forEach(customer => {
+                    const option = document.createElement('option');
+                    option.value = customer.id;
+                    option.textContent = `${customer.name} - ${customer.phone}`;
+                    select.appendChild(option);
+                });
+            } catch (error) {
+                console.error('Error loading customers:', error);
+            }
+        }
+
+        // Load inventory from Google Sheets
+        async function loadInventory() {
+            try {
+                const url = `https://sheets.googleapis.com/v4/spreadsheets/${CONFIG.SHEET_ID}/values/Inventory!A2:I?key=${CONFIG.GOOGLE_API_KEY}`;
+                const response = await fetch(url);
+                const data = await response.json();
+                
+                inventory = (data.values || []).map(row => ({
+                    id: row[0],
+                    name: row[1],
+                    description: row[2],
+                    category: row[3],
+                    price: parseFloat(row[4]) || 0
+                }));
+            } catch (error) {
+                console.error('Error loading inventory:', error);
+            }
+        }
+
+        // Load selected customer
+        function loadCustomer() {
+            const customerId = document.getElementById('customerSelect').value;
+            if (!customerId) {
+                document.getElementById('selectedCustomerInfo').style.display = 'none';
+                return;
+            }
+
+            const customer = customers.find(c => c.id === customerId);
+            if (customer) {
+                document.getElementById('displayName').textContent = customer.name;
+                document.getElementById('displayPhone').textContent = customer.phone;
+                document.getElementById('displayEmail').textContent = customer.email || 'N/A';
+                document.getElementById('displayAddress').textContent = customer.address;
+                document.getElementById('selectedCustomerInfo').style.display = 'block';
+            }
+        }
+
+        // Show new customer form
+        function showNewCustomerForm() {
+            document.getElementById('newCustomerForm').style.display = 'block';
+        }
+
+        // Hide new customer form
+        function hideNewCustomerForm() {
+            document.getElementById('newCustomerForm').style.display = 'none';
+        }
+
+        // Save new customer
+        async function saveNewCustomer() {
+            const name = document.getElementById('newCustomerName').value;
+            const phone = document.getElementById('newCustomerPhone').value;
+            const email = document.getElementById('newCustomerEmail').value;
+            const address = document.getElementById('newCustomerAddress').value;
+
+            if (!name || !phone || !address) {
+                alert('Please fill in all required fields (Name, Phone, Address)');
+                return;
+            }
+
+            const customerId = 'CUST-' + Date.now();
+            const newCustomer = {
+                id: customerId,
+                name, phone, email, address
+            };
+
+            // Add to local array
+            customers.push(newCustomer);
+
+            // Add to dropdown
+            const select = document.getElementById('customerSelect');
+            const option = document.createElement('option');
+            option.value = customerId;
+            option.textContent = `${name} - ${phone}`;
+            option.selected = true;
+            select.appendChild(option);
+
+            // Clear form
+            document.getElementById('newCustomerName').value = '';
+            document.getElementById('newCustomerPhone').value = '';
+            document.getElementById('newCustomerEmail').value = '';
+            document.getElementById('newCustomerAddress').value = '';
+            hideNewCustomerForm();
+
+            // Load customer display
+            loadCustomer();
+
+            alert('Customer added! (Will be saved to sheet when you generate quote)');
+        }
+
+        // Add line item
+        function addLineItem() {
+            lineItemCount++;
+            const container = document.getElementById('lineItemsContainer');
+            const div = document.createElement('div');
+            div.className = 'inventory-picker';
+            div.id = `lineItem${lineItemCount}`;
+            
+            let inventoryOptions = '<option value="">-- Select Item --</option>';
+            inventory.forEach(item => {
+                inventoryOptions += `<option value="${item.id}" data-price="${item.price}">${item.name} - R${item.price.toFixed(2)}</option>`;
+            });
+
+            div.innerHTML = `
+                <select class="item-select" onchange="updatePrice(this, ${lineItemCount})">
+                    ${inventoryOptions}
+                </select>
+                <input type="number" class="item-qty" min="1" value="1" placeholder="Qty" onchange="calculateTotals()">
+                <input type="number" class="item-price" min="0" step="0.01" placeholder="Price" readonly style="background: #f3f4f6;">
+                <button class="remove-btn" onclick="removeLineItem(${lineItemCount})">×</button>
+            `;
+            
+            container.appendChild(div);
+        }
+
+        // Update price when item selected
+        function updatePrice(select, itemId) {
+            const selectedOption = select.options[select.selectedIndex];
+            const price = selectedOption.getAttribute('data-price') || 0;
+            const priceInput = document.querySelector(`#lineItem${itemId} .item-price`);
+            priceInput.value = price;
+            calculateTotals();
+        }
+
+        // Remove line item
+        function removeLineItem(id) {
+            const item = document.getElementById(`lineItem${id}`);
+            if (item) {
+                item.remove();
+                calculateTotals();
+            }
+        }
+
+        // Calculate totals
+        function calculateTotals() {
+            let subtotal = 0;
+            const lineItems = document.querySelectorAll('.inventory-picker');
+            
+            lineItems.forEach(item => {
+                const qty = parseFloat(item.querySelector('.item-qty')?.value) || 0;
+                const price = parseFloat(item.querySelector('.item-price')?.value) || 0;
+                subtotal += qty * price;
+            });
+
+            const vat = subtotal * 0.15;
+            const total = subtotal + vat;
+
+            document.getElementById('subtotal').textContent = `R${subtotal.toFixed(2)}`;
+            document.getElementById('vat').textContent = `R${vat.toFixed(2)}`;
+            document.getElementById('total').textContent = `R${total.toFixed(2)}`;
+        }
+
+        // Generate quote
+        async function generateQuote() {
+            // Validate customer
+            const customerId = document.getElementById('customerSelect').value;
+            if (!customerId) {
+                alert('Please select or add a customer first!');
+                return;
+            }
+
+            const customer = customers.find(c => c.id === customerId);
+            const jobDescription = document.getElementById('jobDescription').value;
+            const installDate = document.getElementById('installDate').value;
+
+            if (!jobDescription || !installDate) {
+                alert('Please fill in job description and installation date!');
+                return;
+            }
+
+            // Get line items
+            const lineItems = [];
+            const lineItemElements = document.querySelectorAll('.inventory-picker');
+            
+            if (lineItemElements.length === 0) {
+                alert('Please add at least one item!');
+                return;
+            }
+
+            lineItemElements.forEach(item => {
+                const select = item.querySelector('.item-select');
+                const itemName = select.options[select.selectedIndex].text;
+                const qty = parseFloat(item.querySelector('.item-qty')?.value) || 0;
+                const price = parseFloat(item.querySelector('.item-price')?.value) || 0;
+                
+                if (select.value && qty && price) {
+                    lineItems.push({
+                        itemId: select.value,
+                        description: itemName,
+                        quantity: qty,
+                        price: price,
+                        total: qty * price
+                    });
+                }
+            });
+
+            if (lineItems.length === 0) {
+                alert('Please select items for the quote!');
+                return;
+            }
+
+            // Calculate totals
+            const subtotal = lineItems.reduce((sum, item) => sum + item.total, 0);
+            const vat = subtotal * 0.15;
+            const total = subtotal + vat;
+
+            // Prepare data
+            const quoteData = {
+                jobId: 'JOB-' + Date.now(),
+                customer: customer,
+                jobDescription: jobDescription,
+                installDate: installDate,
+                lineItems: lineItems,
+                subtotal: subtotal,
+                vat: vat,
+                total: total,
+                timestamp: new Date().toISOString()
+            };
+
+            console.log('Quote Data:', quoteData);
+
+            // Show success (in production, this would save to sheets and send via Apps Script)
+            document.getElementById('successMessage').style.display = 'block';
+            
+            alert(`Quote Generated!\n\nJob ID: ${quoteData.jobId}\nCustomer: ${customer.name}\nTotal: R${total.toFixed(2)}\n\n(Connect Apps Script to save and send)`);
+
+            // TODO: Send to Apps Script
+            // const response = await fetch(CONFIG.APPS_SCRIPT_URL, {
+            //     method: 'POST',
+            //     body: JSON.stringify(quoteData)
+            // });
+        }
+    </script>
+</body>
+</html>
